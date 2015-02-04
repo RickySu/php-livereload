@@ -1,0 +1,22 @@
+{
+    "name": "rickysu/php-livereload",
+    "description": "a livereload server implement by php",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ricky Su",
+            "email": "ricky@ez2.us"
+        }
+    ],
+    "require": {
+        "symfony/console": "~2.6",
+        "react/socket": "0.4.*",
+        "symfony/finder": "~2.6",
+        "symfony/http-foundation": "~2.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "PHPLivereload\\": "src"
+        }
+    }
+}
