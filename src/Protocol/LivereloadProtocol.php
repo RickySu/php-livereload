@@ -21,7 +21,6 @@ class LivereloadProtocol
 
     public function reload($file, $config)
     {
-        echo "reload $file\n";
         $this->sendCommand(array(
             'command' => 'reload',
             'path' => $file,
