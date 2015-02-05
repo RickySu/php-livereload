@@ -37,7 +37,7 @@ livereload.json
     "watch": {
         "web/css/":   "*.css",
         "web/js/":    "*.js",
-        "web/img/":   "\.png|gif|jpg$"
+        "web/img/":   "\\.png|gif|jpg$"
     }
 }
 ```
