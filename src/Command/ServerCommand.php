@@ -23,14 +23,6 @@ class ServerCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $noWatching = $input->getOption('no-watch');
-        $config = array(
-            'basePath' => 'web',
-            'watch' => array(
-                'web/css/.*/' => '*.css',
-                'web/js/.*/' => '*.js',
-                'web/img/.*/' => '*',
-            ),
-        );
         $address = $input->getArgument('address', '127.0.0.1:35729');
         list($host, $port) = explode(':', $address);
         $output->writeln(sprintf("Server running on <info>http://%s</info>\n", $input->getArgument('address')));
