@@ -51,17 +51,11 @@ class ServerApplication
 
     protected function watchingFileChange()
     {
-        $basePath = realpath($this->watchConfig['basePath']);
         foreach($this->watchingFiles as $file => $time){
-            if(is_link($file)){
-                $mtime = filemtime(readlink($file));
-            }
-            else{
-                $mtime = filemtime($file);
-            }
+            $mtime = filemtime($file);
             if($mtime && $mtime > $time){
                 $this->watchingFiles[$file] = $mtime;
-                $this->reloadFile(str_replace($basePath, '', $file));
+                $this->reloadFile($file);
             }
         }
     }
