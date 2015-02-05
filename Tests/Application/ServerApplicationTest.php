@@ -81,4 +81,93 @@ class ServerApplicationTest extends \PHPUnit_Framework_TestCase
         $loop = $loopProperty->getValue($app);
         $this->assertTrue($loop instanceof \React\EventLoop\LoopInterface);
     }
+
+    public function test_addClient()
+    {
+        $client1 = $this->getMockBuilder('\\PHPLivereload\\Protocol\\LivereloadProtocol')
+                ->disableOriginalConstructor()
+                ->getMock();
+        $client2 = clone $client1;
+        $app = new MockServerApplication();
+        $app->addClient($client1);
+        $reflectedClass = new \ReflectionClass($app);
+        $clientsProperty = $reflectedClass->getProperty('clients');
+        $clientsProperty->setAccessible(true);
+        $clients = $clientsProperty->getValue($app);
+        $this->assertEquals(array($client1), $clients);
+        $app->addClient($client2);
+        $clients = $clientsProperty->getValue($app);
+        $this->assertEquals(array($client1, $client2), $clients);
+        $app->addClient($client1);
+        $clients = $clientsProperty->getValue($app);
+        $this->assertEquals(array($client1, $client2), $clients);
+    }
+
+    public function test_removeClient()
+    {
+        $client1 = $this->getMockBuilder('\\PHPLivereload\\Protocol\\LivereloadProtocol')
+                ->disableOriginalConstructor()
+                ->setMockClassName('client1')
+                ->getMock();
+        $client2 = $this->getMockBuilder('\\PHPLivereload\\Protocol\\LivereloadProtocol')
+                ->disableOriginalConstructor()
+                ->setMockClassName('client2')
+                ->getMock();
+        $client3 = $this->getMockBuilder('\\PHPLivereload\\Protocol\\LivereloadProtocol')
+                ->disableOriginalConstructor()
+                ->setMockClassName('client3')
+                ->getMock();
+        $app = new MockServerApplication();
+        $app->addClient($client1);
+        $app->addClient($client2);
+        $app->addClient($client3);
+        $app->removeClient($client2);
+        $reflectedClass = new \ReflectionClass($app);
+        $clientsProperty = $reflectedClass->getProperty('clients');
+        $clientsProperty->setAccessible(true);
+        $clients = $clientsProperty->getValue($app);
+        $this->assertEquals(array($client1, $client3), array_values($clients));
+    }
+
+    public function test_reloadFile()
+    {
+        $calls = array();
+        $file = md5(microtime().rand());
+        $client1 = $this->getMockBuilder('\\PHPLivereload\\Protocol\\LivereloadProtocol')
+                ->disableOriginalConstructor()
+                ->setMockClassName('client1')
+                ->setMethods(array('reload'))
+                ->getMock();
+        $client1->expects($this->any())
+            ->method('reload')
+            ->will($this->returnCallback(function() use(&$calls){
+                $calls[] = 'client1';
+            }));
+        $client2 = $this->getMockBuilder('\\PHPLivereload\\Protocol\\LivereloadProtocol')
+                ->disableOriginalConstructor()
+                ->setMockClassName('client2')
+                ->setMethods(array('reload'))
+                ->getMock();
+        $client2->expects($this->any())
+            ->method('reload')
+            ->will($this->returnCallback(function() use(&$calls){
+                $calls[] = 'client2';
+            }));
+        $client3 = $this->getMockBuilder('\\PHPLivereload\\Protocol\\LivereloadProtocol')
+                ->disableOriginalConstructor()
+                ->setMockClassName('client3')
+                ->setMethods(array('reload'))
+                ->getMock();
+        $client3->expects($this->any())
+            ->method('reload')
+            ->will($this->returnCallback(function() use(&$calls){
+                $calls[] = 'client3';
+            }));
+        $app = new MockServerApplication();
+        $app->addClient($client1);
+        $app->addClient($client2);
+        $app->addClient($client3);
+        $app->reloadFile($file);
+        $this->assertEquals(array('client1', 'client2', 'client3'), $calls);
+    }
 }
