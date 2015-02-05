@@ -48,9 +48,8 @@ class HttpProtocol
                 $this->serveFile(__DIR__.'/../../web/js/livereload.js', $conn);
                 break;
             case '/reload':
-                echo "reload\n";
-                $this->app->reloadFile('de4b905_base_2.css');
-                $response = new Response('ok');
+                $this->app->reloadFile($request->get('file'));
+                $response = new Response(json_encode(array('status' => true)));
                 $conn->write($response);
                 break;
             default:
