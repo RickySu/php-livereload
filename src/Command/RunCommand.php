@@ -8,11 +8,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use PHPLivereload\Application\ServerApplication;
 
-class ServerCommand extends Command
+class RunCommand extends Command
 {
     protected function configure()
     {
-        $this->setName('livereload:server:run')
+        $this->setName('livereload:run')
             ->setDescription('Starts a live reload server.')
             ->addArgument('address', InputArgument::OPTIONAL, 'Address:port', '127.0.0.1:35729')
             ->addOption('config', '-c', InputOption::VALUE_OPTIONAL, 'Path to livereload.json')

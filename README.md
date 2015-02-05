@@ -45,10 +45,17 @@ livereload.json
 * period:  monitor file changes every 1 second.
 * watch: file and folder you want to watch
 
-run in console
+#### initialize a default livereload.json file.
 
 ```
-$ php bin/reload livereload:server:run
+$ php bin/reload livereload:init
+```
+
+
+#### running server.
+
+```
+$ php bin/reload livereload:run
 ```
 
 ## License

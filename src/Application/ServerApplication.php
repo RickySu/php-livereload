@@ -38,10 +38,15 @@ class ServerApplication
         $this->watchConfig = $config;
         foreach($this->watchConfig['watch'] as $path => $file){
             $finder = new Finder();
-            foreach($finder->in($path)->name($file)->followLinks() as $file){
-                if($file->getRealPath()){
-                    $this->watchingFiles[$file->getRealpath()] = $file->getMTime();
+            try{
+                foreach($finder->in($path)->name($file)->followLinks() as $file){
+                    if($file->getRealPath()){
+                        $this->watchingFiles[$file->getRealpath()] = $file->getMTime();
+                    }
                 }
+            }
+            catch(\InvalidArgumentException $e){
+                continue;
             }
         }
         $this->loop->addPeriodicTimer($time, function(){
