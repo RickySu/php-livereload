@@ -30,16 +30,20 @@ run PHPUnit.
 define a livereload.json in your project root.
 
 livereload.json
+
 ```JSON
 {
-    "period": 1, //monitor file changes every 1 second.
+    "period": 1,
     "watch": {
         "web/css/":   "*.css",
         "web/js/":    "*.js",
-        "web/img/":   "*"
+        "web/img/":   "\.png|gif|jpg$"
     }
 }
 ```
+
+* period:  monitor file changes every 1 second.
+* watch: file and folder you want to watch
 
 run in console
 
