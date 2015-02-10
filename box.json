@@ -1,0 +1,23 @@
+{
+    "chmod": "0755",
+    "directories": ["src"],
+    "extract": true,
+    "files": [
+        "LICENSE",
+        "web/js/livereload.js"
+    ],
+    "finder": [
+        {
+            "name": "*.php",
+            "exclude": [
+                "Tests"
+            ],
+            "in": "vendor"
+        }
+    ],
+    "git-commit": "git-commit",
+    "git-version": "git-version",
+    "main": "bin/reload",
+    "output": "reload.phar",
+    "stub": true
+}
