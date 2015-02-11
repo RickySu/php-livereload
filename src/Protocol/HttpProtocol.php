@@ -6,6 +6,7 @@ use React\Socket\Server as SocketServer;
 use React\Socket\Connection as SocketConnection;
 use Symfony\Component\HttpFoundation\Request;
 use PHPLivereload\Response\Response;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class HttpProtocol
 {
@@ -48,7 +49,9 @@ class HttpProtocol
                 $this->serveFile(__DIR__.'/../../web/js/livereload.js', $conn);
                 break;
             case '/reload':
-                $this->app->reloadFile($request->get('file'));
+                $file = $request->get('file');
+                $this->app->getOutput()->writeln(strftime('%T')." - info - Receive request reload $file", OutputInterface::VERBOSITY_VERBOSE);
+                $this->app->reloadFile($file);
                 $response = new Response(json_encode(array('status' => true)));
                 $conn->write($response);
                 break;

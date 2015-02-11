@@ -55,7 +55,7 @@ $ php bin/reload livereload:init
 #### running server.
 
 ```
-$ php bin/reload livereload:run
+$ php bin/reload server:run
 ```
 
 ## License

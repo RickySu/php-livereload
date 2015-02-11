@@ -4,6 +4,7 @@ namespace PHPLivereload\Protocol;
 use React\Socket\Connection as SocketConnection;
 use PHPLivereload\Response\ResponseWebSocketFrame;
 use PHPLivereload\Application\ServerApplication;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class LivereloadProtocol
 {
@@ -21,6 +22,7 @@ class LivereloadProtocol
 
     public function reload($file, $config)
     {
+        $this->app->getOutput()->writeln(strftime('%T')." - info - Browser reload $file", OutputInterface::VERBOSITY_VERBOSE);
         $this->sendCommand(array(
             'command' => 'reload',
             'path' => $file,
@@ -30,6 +32,7 @@ class LivereloadProtocol
 
     protected function shutdown()
     {
+        $this->app->getOutput()->writeln(strftime('%T')." - info - Browser disconnected", OutputInterface::VERBOSITY_VERBOSE);
         $this->app->removeClient($this);
         unset($this->app);
         unset($this->conn);
@@ -72,6 +75,7 @@ class LivereloadProtocol
         if($this->connected){
            return;
         }
+        $this->app->getOutput()->writeln(strftime('%T')." - info - Livereload protocol initialized.", OutputInterface::VERBOSITY_VERBOSE);
         $this->connected = true;
         $this->sendCommand(array(
             'command' => 'hello',

@@ -5,11 +5,12 @@ require __DIR__.'/../vendor/autoload.php';
 use Symfony\Component\Console\Application;
 use Symfony\Component\Finder\Finder;
 
+$appVersion = '0.1.0-DEV';
 
 $finder = new Finder();
 $finder->files()->in(__DIR__.'/../src/Command/');
 
-$application = new Application();
+$application = new Application('php livereload', $appVersion);
 
 foreach ($finder as $file) {
     $class = 'PHPLivereload\\Command\\'.substr($file->getFileName(), 0, - (strlen($file->getExtension())+1));

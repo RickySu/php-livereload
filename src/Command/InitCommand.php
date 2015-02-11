@@ -13,6 +13,7 @@ class InitCommand extends Command
     protected function configure()
     {
         $this->setName('livereload:init')
+            ->setAliases(array('init'))
             ->setDescription('Initialize livereload.json.')
             ->addOption('force', '-f', InputOption::VALUE_NONE, 'force rewrite livereload.json')
             ;

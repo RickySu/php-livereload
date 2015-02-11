@@ -1,6 +1,7 @@
 <?php
 namespace PHPLivereload\Application;
 
+use Symfony\Component\Console\Output\OutputInterface;
 use React\EventLoop\Factory as LoopFactory;
 use React\Socket\Server as SocketServer;
 use PHPLivereload\Protocol;
@@ -8,7 +9,7 @@ use Symfony\Component\Finder\Finder;
 
 class ServerApplication
 {
-
+    protected $output;
     protected $loop;
     protected $clients = array();
     protected $config = array(
@@ -21,6 +22,20 @@ class ServerApplication
     {
         $this->initLoop();
         $this->initServer($host, $port);
+    }
+
+    public function setOutput(OutputInterface $output)
+    {
+        $this->output = $output;
+    }
+
+    /**
+     *
+     * @return OutputInterface
+     */
+    public function getOutput()
+    {
+        return $this->output;
     }
 
     public function run()
