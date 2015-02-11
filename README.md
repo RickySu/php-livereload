@@ -8,7 +8,7 @@ php-livereload uses [livereload.js](https://github.com/livereload/livereload-js)
 
 ## Install
 
-The recommended way to install php-livereload is [through composer](http://getcomposer.org).
+Install php-livereload from [composer](http://getcomposer.org).
 
 ```JSON
 {
@@ -17,6 +17,13 @@ The recommended way to install php-livereload is [through composer](http://getco
     }
 }
 ```
+
+Get the command-line php-livereload
+
+    $ curl -O https://raw.github.com/RickySu/php-livereload/dist/reload.phar
+    $ chmod +x reload.phar
+    $ sudo mv reload.phar /usr/bin
+
 
 ## Tests
 
