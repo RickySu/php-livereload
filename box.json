@@ -18,6 +18,6 @@
     "git-commit": "git-commit",
     "git-version": "git-version",
     "main": "bin/reload",
-    "output": "reload-@git-version@.phar",
+    "output": "dist/reload.phar",
     "stub": true
 }
