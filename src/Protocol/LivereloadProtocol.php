@@ -32,6 +32,7 @@ class LivereloadProtocol
 
     protected function shutdown()
     {
+        $this->conn->removeAllListeners();
         $this->app->getOutput()->writeln(strftime('%T')." - info - Browser disconnected", OutputInterface::VERBOSITY_VERBOSE);
         $this->app->removeClient($this);
         unset($this->app);
