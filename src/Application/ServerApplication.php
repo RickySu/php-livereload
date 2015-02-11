@@ -51,12 +51,20 @@ class ServerApplication
     public function watching($time, $config)
     {
         $this->watchConfig = $config;
+        $this->scanFiles();
+        $this->loop->addPeriodicTimer($time, function(){
+            $this->watchingFileChange();
+        });
+    }
+
+    protected function scanFiles($scanNewFile = true)
+    {
         foreach($this->watchConfig['watch'] as $path => $file){
             $finder = new Finder();
             try{
                 foreach($finder->in($path)->name($file)->followLinks() as $file){
-                    if($file->getRealPath()){
-                        $this->watchingFiles[$file->getRealpath()] = $file->getMTime();
+                    if($file->getRealPath() && !isset($this->watchingFiles[$file->getRealpath()])){
+                        $this->watchingFiles[$file->getRealpath()] = $scanNewFile?$file->getMTime():0;
                     }
                 }
             }
@@ -64,15 +72,13 @@ class ServerApplication
                 continue;
             }
         }
-        $this->loop->addPeriodicTimer($time, function(){
-            $this->watchingFileChange();
-        });
     }
 
     protected function watchingFileChange()
     {
+        $this->scanFiles(false);
         foreach($this->watchingFiles as $file => $time){
-            $mtime = filemtime($file);
+            $mtime = @filemtime($file);
             if($mtime && $mtime > $time){
                 $this->watchingFiles[$file] = $mtime;
                 $this->reloadFile($file);
