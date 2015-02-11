@@ -20,10 +20,9 @@ Install php-livereload from [composer](http://getcomposer.org).
 
 Get the command-line php-livereload
 
-    $ curl -O https://raw.github.com/RickySu/php-livereload/dist/reload.phar
+    $ curl -O https://raw.github.com/RickySu/php-livereload/master/dist/reload.phar
     $ chmod +x reload.phar
     $ sudo mv reload.phar /usr/bin
-
 
 ## Tests
 
@@ -58,11 +57,17 @@ livereload.json
 $ php bin/reload livereload:init
 ```
 
-
 #### running server.
 
 ```
 $ php bin/reload server:run
+```
+
+#### reload file over http request
+
+```php
+<?php
+file_get_contents('http://127.0.0.1/reload?file='.urlencode($file_to_reload));
 ```
 
 ## License
