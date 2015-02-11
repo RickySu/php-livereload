@@ -24,6 +24,8 @@ Get the command-line php-livereload
     $ chmod +x reload.phar
     $ sudo mv reload.phar /usr/bin
 
+Install [LiveReload Safari/Chrome/Firefox extension](http://feedback.livereload.com/knowledgebase/articles/86242-how-do-i-install-and-use-the-browser-extensions-)
+
 ## Tests
 
 To run the test suite, you need install the dependencies via composer, then
