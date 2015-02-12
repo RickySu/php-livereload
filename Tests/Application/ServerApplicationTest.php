@@ -2,6 +2,8 @@
 namespace PHPLivereload\Tests\Application;
 
 use PHPLivereload\Application\ServerApplication;
+use React\EventLoop\Factory as LoopFactory;
+use PHPLivereload\Protocol;
 
 class MockServerApplication extends ServerApplication
 {
@@ -169,5 +171,69 @@ class ServerApplicationTest extends \PHPUnit_Framework_TestCase
         $app->addClient($client3);
         $app->reloadFile($file);
         $this->assertEquals(array('client1', 'client2', 'client3'), $calls);
+    }
+
+    public function test_setOutput()
+    {
+        $serverApp = new MockServerApplication();
+        $output = $this->getMock('\\Symfony\\Component\\Console\\Output\\OutputInterface');
+        $serverApp->setOutput($output);
+        $this->assertEquals($output, $this->getObjectAttribute($serverApp, 'output'));
+    }
+
+    public function test_getOutput()
+    {
+        $serverApp = new MockServerApplication();
+        $output = $this->getMock('\\Symfony\\Component\\Console\\Output\\OutputInterface');
+        $reflectedClass = new \ReflectionClass($serverApp);
+        $properity = $reflectedClass->getProperty('output');
+        $properity->setAccessible(true);
+        $properity->setValue($serverApp, $output);
+        $this->assertEquals($output, $serverApp->getOutput());
+    }
+
+    public function test_watching()
+    {
+        $calls = [];
+        $testConfig = array(1, 2, 3, 4);
+        $serverApp = $this->getMock('\\PHPLivereload\\Application\\ServerApplication', array('scanFiles', 'watchingFileChange'), array(), '', false);
+        $serverApp->expects($this->any())
+            ->method('scanFiles')
+            ->will($this->returnCallback(function() use(&$calls){
+                $calls[] = 'scanFiles';
+            }));
+        $serverApp->expects($this->any())
+            ->method('watchingFileChange')
+            ->will($this->returnCallback(function() use(&$calls){
+                $calls[] = 'watchingFileChange';
+            }));
+        $loop = $this->getMock('\\React\\EventLoop\\StreamSelectLoop', array('addPeriodicTimer'));
+        $loop->expects($this->any())
+            ->method('addPeriodicTimer')
+            ->will($this->returnCallback(function($time, $callback) use(&$calls){
+                $calls[] = 'addPeriodicTimer';
+                $this->assertEquals(123, $time);
+                $callback();
+            }));
+        $reflectedClass = new \ReflectionClass($serverApp);
+        $properity = $reflectedClass->getProperty('loop');
+        $properity->setAccessible(true);
+        $properity->setValue($serverApp, $loop);
+        $serverApp->watching(123, $testConfig);
+        $this->assertEquals(array('scanFiles', 'addPeriodicTimer', 'watchingFileChange'), $calls);
+    }
+
+    public function test_initServer()
+    {
+        $loop = LoopFactory::create();
+        $serverApp = new MockServerApplication();
+        $reflectedClass = new \ReflectionClass($serverApp);
+        $properity = $reflectedClass->getProperty('loop');
+        $properity->setAccessible(true);
+        $properity->setValue($serverApp, $loop);
+        $method = $reflectedClass->getMethod('initServer');
+        $method->setAccessible(true);
+        $result = $method->invoke($serverApp, '127.0.0.1', 8888);
+        $this->assertTrue($result instanceof Protocol\HttpProtocol);
     }
 }

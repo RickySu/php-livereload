@@ -95,7 +95,7 @@ class ServerApplication
     {
         $socket = new SocketServer($this->loop);
         $socket->listen($port, $host);
-        new Protocol\HttpProtocol($socket, $this);
+        return new Protocol\HttpProtocol($socket, $this);
     }
 
     public function addClient(Protocol\LivereloadProtocol $client)
