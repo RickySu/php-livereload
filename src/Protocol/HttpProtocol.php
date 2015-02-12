@@ -35,10 +35,10 @@ class HttpProtocol
     protected function onData(SocketConnection $conn, $data)
     {
         $request = $this->doHttpHandshake($data);
-        $this->handleRequest($request, $conn);
+        $this->handleRequest($conn, $request);
     }
 
-    protected function handleRequest(Request $request, SocketConnection $conn)
+    protected function handleRequest(SocketConnection $conn, Request $request)
     {
         switch($request->getPathInfo()){
             case '/livereload':

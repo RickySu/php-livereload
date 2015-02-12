@@ -1,7 +1,7 @@
 <?php
 namespace PHPLivereload\Tests\Protocol;
 
-use PHPLivereload\Protocol\HttpProtocol;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Description of Message
@@ -14,11 +14,11 @@ class HttpProtocolTest extends \PHPUnit_Framework_TestCase
     {
         $calls = [];
         $app = $this->getMockBuilder('\\PHPLivereload\\Application\\ServerApplication')
-                ->disableOriginalConstructor()
-                ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
         $socket = $this->getMockBuilder('\\React\\Socket\\Server')
-                ->disableOriginalConstructor()
-                ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
         $httpProtocol = $this->getMockBuilder('\\PHPLivereload\\Protocol\\HttpProtocol')
              ->setMethods(array('initEvent'))
              ->disableOriginalConstructor()
@@ -40,12 +40,12 @@ class HttpProtocolTest extends \PHPUnit_Framework_TestCase
     {
         $calls = [];
         $socketConn = $this->getMockBuilder('\\React\\Socket\\Connection')
-                ->disableOriginalConstructor()
-                ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
         $socket = $this->getMockBuilder('\\React\\Socket\\Server')
-                ->setMethods(array('on'))
-                ->disableOriginalConstructor()
-                ->getMock();
+            ->setMethods(array('on'))
+            ->disableOriginalConstructor()
+            ->getMock();
         $socket->expects($this->any())
             ->method('on')
             ->will($this->returnCallback(function($event, $callback) use(&$calls, $socketConn){
@@ -70,6 +70,69 @@ class HttpProtocolTest extends \PHPUnit_Framework_TestCase
         $method->setAccessible(true);
         $method->invoke($httpProtocol, $socket);
         $this->assertEquals(array('on', 'onConnect'), $calls);
+    }
 
+    public function test_onConnect()
+    {
+        $calls = [];
+        $socketConn = $this->getMockBuilder('\\React\\Socket\\Connection')
+            ->setMethods(array('on'))
+            ->disableOriginalConstructor()
+            ->getMock();
+        $socketConn->expects($this->any())
+            ->method('on')
+            ->will($this->returnCallback(function($event, $callback) use(&$calls, $socketConn){
+                $calls[] = 'on';
+                $callback('dataForReceive');
+                $this->assertEquals('data', $event);
+            }));
+        $httpProtocol = $this->getMockBuilder('\\PHPLivereload\\Protocol\\HttpProtocol')
+             ->setMethods(array('onData'))
+             ->disableOriginalConstructor()
+             ->getMock();
+        $httpProtocol->expects($this->any())
+            ->method('onData')
+            ->will($this->returnCallback(function($conn, $data) use(&$calls, $socketConn){
+                $calls[] = 'onData';
+                $this->assertEquals('dataForReceive', $data);
+                $this->assertEquals($socketConn, $conn);
+            }));
+        $reflectedClass = new \ReflectionClass($httpProtocol);
+        $method = $reflectedClass->getMethod('onConnect');
+        $method->setAccessible(true);
+        $method->invoke($httpProtocol, $socketConn);
+        $this->assertEquals(array('on', 'onData'), $calls);
+    }
+
+    public function test_onData()
+    {
+        $calls = [];
+        $request = new Request();
+        $socketConn = $this->getMockBuilder('\\React\\Socket\\Connection')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $httpProtocol = $this->getMockBuilder('\\PHPLivereload\\Protocol\\HttpProtocol')
+             ->setMethods(array('doHttpHandshake', 'handleRequest'))
+             ->disableOriginalConstructor()
+             ->getMock();
+        $httpProtocol->expects($this->any())
+            ->method('doHttpHandshake')
+            ->will($this->returnCallback(function($data) use(&$calls, $request){
+                $calls[] = 'doHttpHandshake';
+                $this->assertEquals('dataForReceive', $data);
+                return $request;
+            }));
+        $httpProtocol->expects($this->any())
+            ->method('handleRequest')
+            ->will($this->returnCallback(function($conn, $requestForTest) use(&$calls, $socketConn, $request){
+                $calls[] = 'handleRequest';
+                $this->assertEquals($socketConn, $conn);
+                $this->assertEquals($request, $requestForTest);
+            }));
+        $reflectedClass = new \ReflectionClass($httpProtocol);
+        $method = $reflectedClass->getMethod('onData');
+        $method->setAccessible(true);
+        $method->invoke($httpProtocol, $socketConn, 'dataForReceive');
+        $this->assertEquals(array('doHttpHandshake', 'handleRequest'), $calls);
     }
 }
