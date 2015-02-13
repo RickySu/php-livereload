@@ -19,5 +19,6 @@
     "git-version": "git-version",
     "main": "bin/reload",
     "output": "dist/reload.phar",
+    "web": false,
     "stub": true
 }
