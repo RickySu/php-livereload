@@ -13,7 +13,7 @@ class WebSocketProtocol
     protected $conn;
     protected $app;
 
-    public function __construct(HttpFoundation\Request $request, SocketConnection $conn, ServerApplication $app)
+    public function __construct(SocketConnection $conn, ServerApplication $app, HttpFoundation\Request $request)
     {
         $this->app = $app;
         $this->conn = $conn;

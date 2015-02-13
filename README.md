@@ -53,23 +53,43 @@ livereload.json
 * period:  monitor file changes every 1 second.
 * watch: file and folder you want to watch
 
-#### initialize a default livereload.json file.
+#### Initialize a default livereload.json file.
 
 ```
 $ php bin/reload livereload:init
 ```
 
-#### running server.
+#### Running Server.
 
 ```
 $ php bin/reload server:run
 ```
 
-#### reload file over http request
+#### Rolling Your Own Live Reload
 
-```php
-<?php
-file_get_contents('http://127.0.0.1/reload?file='.urlencode($file_to_reload));
+ If you would like to trigger the live reload server yourself,
+simply POST files to the URL: http://localhost:35729/changed.
+Or if you rather roll your own live reload implementation use the following example:
+
+```
+# notify a single change
+curl http://localhost:35729/changed?files=style.css
+
+# notify using a longer path
+curl http://localhost:35729/changed?files=js/app.js
+
+# notify multiple changes, comma or space delimited
+curl http://localhost:35729/changed?files=index.html,style.css,docs/docco.css
+```
+
+Or you can bulk the information into a POST request, with body as a JSON array of files.
+
+```
+curl -X POST http://localhost:35729/changed -d '{ "files": ["style.css", "app.js"] }'
+
+# from a JSON file
+node -pe 'JSON.stringify({ files: ["some.css", "files.css"] })' > files.json
+curl -X POST -d @files.json http://localhost:35729
 ```
 
 ## License

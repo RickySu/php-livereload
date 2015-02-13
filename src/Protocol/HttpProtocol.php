@@ -43,22 +43,37 @@ class HttpProtocol
         switch($request->getPathInfo()){
             case '/livereload':
                 $conn->removeAllListeners('data');
-                new WebSocketProtocol($request, $conn, $this->app);
+                new WebSocketProtocol($conn,  $this->app, $request);
                 break;
             case '/livereload.js':
                 $this->serveFile(__DIR__.'/../../web/js/livereload.js', $conn);
                 break;
-            case '/reload':
-                $file = $request->get('file');
-                $this->app->getOutput()->writeln(strftime('%T')." - info - Receive request reload $file", OutputInterface::VERBOSITY_VERBOSE);
-                $this->app->reloadFile($file);
-                $response = new Response(json_encode(array('status' => true)));
-                $conn->write($response);
+            case '/changed':
+                $this->notifyChanged($conn, $request);
                 break;
             default:
                 $this->serve404Error($conn);
                 $conn->end();
         }
+    }
+
+    protected function getRequestChangedFiles(Request $request)
+    {
+        if(($files = $request->query->get('files')) != null){
+            return explode(',', $files);
+        }
+        $requestJson = json_decode($request->getContent(), true);
+        return isset($requestJson['files'])?(is_array($requestJson['files'])?$requestJson['files']:[$requestJson['files']]):[];
+    }
+
+    protected function notifyChanged(SocketConnection $conn, Request $request)
+    {
+        foreach($this->getRequestChangedFiles($request) as $file){
+            $this->app->getOutput()->writeln(strftime('%T')." - info - Receive request reload $file", OutputInterface::VERBOSITY_VERBOSE);
+            $this->app->reloadFile($file);
+        }
+        $response = new Response(json_encode(array('status' => true)));
+        $conn->write($response);
     }
 
     protected function serveFile($file, $conn)
@@ -84,10 +99,11 @@ class HttpProtocol
         if($pos === false){
             return false;
         }
+        $body = substr($data, $pos + 4);
         $rawHeaders = explode("\r\n", substr($data, 0, $pos));
         $requestLine = $this->parseRequest(array_shift($rawHeaders));
         $headers = $this->parseHeaders($rawHeaders);
-        return Request::create($requestLine['uri'], $requestLine['method'], array(), array(), array(), $headers);
+        return Request::create($requestLine['uri'], $requestLine['method'], array(), array(), array(), $headers, $body);
     }
 
     protected function parseRequest($rawRequest)
