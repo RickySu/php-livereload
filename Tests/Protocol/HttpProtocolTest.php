@@ -191,6 +191,6 @@ class HttpProtocolTest extends \PHPUnit_Framework_TestCase
         $calls = [];
         $method->invoke($httpProtocol, $socketConn, $request);
         $this->assertEquals(array('serve404Error'), $calls);
-
     }
+
 }

@@ -12,7 +12,8 @@
         "symfony/console": "~2.6",
         "react/socket": "0.4.*",
         "symfony/finder": "~2.6",
-        "symfony/http-foundation": "~2.6"
+        "symfony/http-foundation": "~2.6",
+        "satooshi/php-coveralls": "0.6.*"
     },
     "autoload": {
         "psr-4": {

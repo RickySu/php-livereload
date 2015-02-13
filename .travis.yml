@@ -7,5 +7,9 @@ php:
 before_script:
     - composer self-update
     - composer install
+    - composer require satooshi/php-coveralls
 script:
     - phpunit
+
+after_script:
+  - php vendor/bin/coveralls -v
