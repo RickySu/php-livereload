@@ -42,8 +42,7 @@ class HttpProtocol
     {
         switch($request->getPathInfo()){
             case '/livereload':
-                $conn->removeAllListeners('data');
-                new WebSocketProtocol($conn,  $this->app, $request);
+                $this->initWebSocket($conn, $request);
                 break;
             case '/livereload.js':
                 $this->serveFile(__DIR__.'/../../web/js/livereload.js', $conn);
@@ -53,8 +52,13 @@ class HttpProtocol
                 break;
             default:
                 $this->serve404Error($conn);
-                $conn->end();
         }
+    }
+
+    protected function initWebSocket(SocketConnection $conn, Request $request)
+    {
+        $conn->removeAllListeners('data');
+        return new WebSocketProtocol($conn,  $this->app, $request);
     }
 
     protected function getRequestChangedFiles(Request $request)
@@ -91,6 +95,7 @@ class HttpProtocol
     {
         $response = new Response('file not found.', Response::HTTP_NOT_FOUND);
         $conn->write($response);
+        $conn->end();
     }
 
     protected function doHttpHandshake($data)

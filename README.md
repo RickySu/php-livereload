@@ -67,8 +67,7 @@ $ php bin/reload server:run
 
 #### Rolling Your Own Live Reload
 
- If you would like to trigger the live reload server yourself,
-simply POST files to the URL: http://localhost:35729/changed.
+ If you would like to trigger the live reload server yourself, simply POST files to the URL: `http://localhost:35729/changed`.
 Or if you rather roll your own live reload implementation use the following example:
 
 ```

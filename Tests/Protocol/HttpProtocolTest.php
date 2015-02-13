@@ -135,4 +135,62 @@ class HttpProtocolTest extends \PHPUnit_Framework_TestCase
         $method->invoke($httpProtocol, $socketConn, 'dataForReceive');
         $this->assertEquals(array('doHttpHandshake', 'handleRequest'), $calls);
     }
+
+    public function test_handleRequest()
+    {
+        $calls = [];
+        $pathInfo = '';
+
+        $socketConn = $this->getMockBuilder('\\React\\Socket\\Connection')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $request = $this->getMockBuilder('\\Symfony\\Component\\HttpFoundation\\Request')
+            ->setMethods(array('getPathInfo'))
+            ->disableOriginalConstructor()
+            ->getMock();
+        $request->expects($this->any())
+            ->method('getPathInfo')
+            ->will($this->returnCallback(function() use(&$pathInfo){
+                return $pathInfo;
+            }));
+
+        $methods = array('initWebSocket', 'serveFile', 'notifyChanged', 'serve404Error');
+        $httpProtocol = $this->getMockBuilder('\\PHPLivereload\\Protocol\\HttpProtocol')
+             ->setMethods($methods)
+             ->disableOriginalConstructor()
+             ->getMock();
+        foreach($methods as $method){
+            $httpProtocol->expects($this->any())
+                ->method($method)
+                ->will($this->returnCallback(function() use(&$calls, $method){
+                    $calls[] = $method;
+                }));
+        }
+
+        $reflectedClass = new \ReflectionClass($httpProtocol);
+        $method = $reflectedClass->getMethod('handleRequest');
+        $method->setAccessible(true);
+
+        $pathInfo = '/livereload';
+        $calls = [];
+        $method->invoke($httpProtocol, $socketConn, $request);
+        $this->assertEquals(array('initWebSocket'), $calls);
+
+        $pathInfo = '/livereload.js';
+        $calls = [];
+        $method->invoke($httpProtocol, $socketConn, $request);
+        $this->assertEquals(array('serveFile'), $calls);
+
+        $pathInfo = '/changed';
+        $calls = [];
+        $method->invoke($httpProtocol, $socketConn, $request);
+        $this->assertEquals(array('notifyChanged'), $calls);
+
+        $pathInfo = '/asjjahkhakjs';  //error 404
+        $calls = [];
+        $method->invoke($httpProtocol, $socketConn, $request);
+        $this->assertEquals(array('serve404Error'), $calls);
+
+    }
 }
