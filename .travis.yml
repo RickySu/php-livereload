@@ -10,6 +10,5 @@ before_script:
     - composer require satooshi/php-coveralls
 script:
     - phpunit
-
 after_script:
   - php vendor/bin/coveralls -v
