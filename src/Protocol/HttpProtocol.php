@@ -45,7 +45,7 @@ class HttpProtocol
                 $this->initWebSocket($conn, $request);
                 break;
             case '/livereload.js':
-                $this->serveFile(__DIR__.'/../../web/js/livereload.js', $conn);
+                $this->serveFile($conn, __DIR__.'/../../web/js/livereload.js');
                 break;
             case '/changed':
                 $this->notifyChanged($conn, $request);
@@ -80,7 +80,7 @@ class HttpProtocol
         $conn->write($response);
     }
 
-    protected function serveFile($file, $conn)
+    protected function serveFile(SocketConnection $conn, $file)
     {
         if(($path = realpath($file)) === null){
             return ;

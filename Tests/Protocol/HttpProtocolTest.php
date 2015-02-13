@@ -2,6 +2,7 @@
 namespace PHPLivereload\Tests\Protocol;
 
 use Symfony\Component\HttpFoundation\Request;
+use PHPLivereload\Response\Response;
 
 /**
  * Description of Message
@@ -193,4 +194,61 @@ class HttpProtocolTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('serve404Error'), $calls);
     }
 
+    public function test_serveFile()
+    {
+        $calls = [];
+        $data = md5(microtime().rand());
+        $httpProtocol = $this->getMockBuilder('\\PHPLivereload\\Protocol\\HttpProtocol')
+             ->disableOriginalConstructor()
+             ->getMock();
+        $socketConn = $this->getMockBuilder('\\React\\Socket\\Connection')
+            ->disableOriginalConstructor()
+            ->setMethods(array('write'))
+            ->getMock();
+        $socketConn->expects($this->any())
+            ->method('write')
+            ->will($this->returnCallback(function(Response $response) use($data, &$calls){
+                $calls[] = 'write';
+                $this->assertEquals($data, $response->getContent());
+                $this->assertEquals('text/plain; charset=utf-8', $response->headers->get('Content-Type'));
+            }));
+        $reflectedClass = new \ReflectionClass($httpProtocol);
+        $method = $reflectedClass->getMethod('serveFile');
+        $method->setAccessible(true);
+
+        $tempname = tempnam(sys_get_temp_dir(), 'livereloadtest-');
+        file_put_contents($tempname, $data);
+        $method->invoke($httpProtocol, $socketConn, $tempname);
+        unlink($tempname);
+        $this->assertEquals(array('write'), $calls);
+    }
+
+    public function test_serve404Error()
+    {
+        $calls = [];
+        $httpProtocol = $this->getMockBuilder('\\PHPLivereload\\Protocol\\HttpProtocol')
+             ->disableOriginalConstructor()
+             ->getMock();
+        $socketConn = $this->getMockBuilder('\\React\\Socket\\Connection')
+            ->disableOriginalConstructor()
+            ->setMethods(array('write', 'end'))
+            ->getMock();
+        $socketConn->expects($this->any())
+            ->method('write')
+            ->will($this->returnCallback(function(Response $response) use(&$calls){
+                $calls[] = 'write';
+                $this->assertEquals(Response::HTTP_NOT_FOUND ,$response->getStatusCode());
+            }));
+        $socketConn->expects($this->any())
+            ->method('end')
+            ->will($this->returnCallback(function() use(&$calls){
+                $calls[] = 'end';
+            }));
+        $reflectedClass = new \ReflectionClass($httpProtocol);
+        $method = $reflectedClass->getMethod('serve404Error');
+        $method->setAccessible(true);
+
+        $method->invoke($httpProtocol, $socketConn);
+        $this->assertEquals(array('write', 'end'), $calls);
+    }
 }
