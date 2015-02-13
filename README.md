@@ -1,6 +1,7 @@
 # PHP Livereload
 
 [![Build Status](https://travis-ci.org/RickySu/php-livereload.svg?branch=master)](https://travis-ci.org/RickySu/php-livereload)
+[![Coverage Status](https://coveralls.io/repos/RickySu/php-livereload/badge.svg?branch=master)](https://coveralls.io/r/RickySu/php-livereload?branch=master)
 
 php-livereload is a livereload server written in PHP.
 
