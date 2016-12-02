@@ -107,10 +107,15 @@ class ServerApplication
 
     public function removeClient(Protocol\LivereloadProtocol $client)
     {
+        $this->clients = array_values(array_filter($this->clients, function($client) {
+            return !empty($client->app) && !empty($client->conn);
+        }));
+        
         $index = array_search($client, $this->clients, true);
         if($index == false){
             return;
         }
+        
         unset($this->clients[$index]);
     }
 
