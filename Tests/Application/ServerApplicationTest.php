@@ -130,6 +130,32 @@ class ServerApplicationTest extends \PHPUnit_Framework_TestCase
         $clients = $clientsProperty->getValue($app);
         $this->assertEquals(array($client1, $client3), array_values($clients));
     }
+    
+    public function test_removeClient_client_is_the_first_element()
+    {
+        $client1 = $this->getMockBuilder('\\PHPLivereload\\Protocol\\LivereloadProtocol')
+                ->disableOriginalConstructor()
+                ->setMockClassName('client1')
+                ->getMock();
+        $client2 = $this->getMockBuilder('\\PHPLivereload\\Protocol\\LivereloadProtocol')
+                ->disableOriginalConstructor()
+                ->setMockClassName('client2')
+                ->getMock();
+        $client3 = $this->getMockBuilder('\\PHPLivereload\\Protocol\\LivereloadProtocol')
+                ->disableOriginalConstructor()
+                ->setMockClassName('client3')
+                ->getMock();
+        $app = new MockServerApplication();
+        $app->addClient($client1);
+        $app->addClient($client2);
+        $app->addClient($client3);
+        $app->removeClient($client1);
+        $reflectedClass = new \ReflectionClass($app);
+        $clientsProperty = $reflectedClass->getProperty('clients');
+        $clientsProperty->setAccessible(true);
+        $clients = $clientsProperty->getValue($app);
+        $this->assertEquals(array($client2, $client3), array_values($clients));
+    }
 
     public function test_reloadFile()
     {
