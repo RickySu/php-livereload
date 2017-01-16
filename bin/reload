@@ -18,7 +18,7 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 use Symfony\Component\Console\Application;
 use Symfony\Component\Finder\Finder;
 
-$appVersion = '0.1.0';
+$appVersion = '0.1.2';
 
 $finder = new Finder();
 $finder->files()->in(__DIR__.'/../src/Command/');
